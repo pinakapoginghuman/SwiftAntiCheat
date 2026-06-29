@@ -1,0 +1,30 @@
+name: SwiftAntiCheat
+version: 1.0.0
+main: net.swiftsmp.anticheat.SwiftACPlugin
+api-version: 1.13
+authors: [SwiftSMP]
+description: Screenshare tool & anti-cheat system for SwiftSMP
+
+commands:
+  screenshare:
+    description: Freeze a player for screenshare
+    aliases: [ss]
+    permission: swiftac.staff
+  unscreenshare:
+    description: Unfreeze a player from screenshare
+    aliases: [uss]
+    permission: swiftac.staff
+  swiftanticheat:
+    description: Generate a SwiftAntiCheat scan link for a player
+    aliases: [sac, swiftac]
+    permission: swiftac.staff
+  discord:
+    description: Get the Discord invite link
+
+permissions:
+  swiftac.staff:
+    description: Staff permission for screenshare commands
+    default: op
+  swiftac.bypass:
+    description: Bypass screenshare checks
+    default: false

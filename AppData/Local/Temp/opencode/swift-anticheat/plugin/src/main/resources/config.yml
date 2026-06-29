@@ -1,0 +1,47 @@
+# SwiftAntiCheat Configuration
+
+# Backend API (for scan link generation)
+api:
+  base-url: "https://swiftac-api.onrender.com"
+  api-key: "change-this-to-a-random-secret-key"
+
+# Discord settings
+discord:
+  invite: "https://discord.gg/swiftsmp"
+  # Message shown when /discord is used
+  message:
+    - "&b&lSwiftSMP &8» &fJoin our Discord!"
+    - "&7→ &f{discord}"
+    - "&7Create a ticket in #create-ticket and ping staff for screenshare."
+
+# Screenshare settings
+screenshare:
+  # Ban duration for dodging screenshare (format: 7d, 30d, permanent)
+  dodge-ban-duration: "7d"
+  dodge-ban-reason: "Dodging screenshare"
+  # Freeze message shown to the suspect
+  freeze-message:
+    - "&c&lYou are being screenshared!"
+    - "&7You have been frozen by &f{staff}&7."
+    - "&7Please join our Discord and create a ticket."
+    - "&7Use &f/discord &7for the invite link."
+    - "&c&lLeaving will result in a {duration} ban!"
+  # Message shown to staff when screenshare starts
+  staff-freeze-notify: "&a{player} has been frozen for screenshare."
+  # Message shown to staff when player dodges
+  dodge-notify: "&c{player} has left while frozen! Banning for {duration}."
+  # Message broadcast when a screenshare ends
+  unfreeze-message: "&aYou have been unfrozen. Thank you for your cooperation."
+  # Whether to freeze the player completely (true) or just disable movement (false)
+  freeze-ai: true
+
+# Scan link settings
+scan:
+  # The base URL for scan links (the dashboard URL)
+  base-url: "https://swiftac-scan.vercel.app"
+  # Message shown when scan link is generated
+  link-message:
+    - "&b&lSwiftAntiCheat &8» &fYour scan link has been generated!"
+    - "&7Click: &b{link}"
+    - "&7Download and run the scanner to complete the scan."
+    - "&7Your results will be reviewed by staff."
