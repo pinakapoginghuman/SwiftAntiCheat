@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function ScanPage() {
+function ScanContent() {
   const searchParams = useSearchParams()
   const scanId = searchParams.get('id')
   const [scan, setScan] = useState(null)
@@ -52,8 +52,8 @@ export default function ScanPage() {
         <div>
           <h1>Scan: {scan.playerName}</h1>
           <p style={{ color: '#888', fontSize: '0.85rem' }}>
-            ID: {scan.id} &middot; Staff: {scan.staffName}
-            &middot; {new Date(scan.createdAt * 1000).toLocaleString()}
+            ID: {scan.id} · Staff: {scan.staffName}
+            · {new Date(scan.createdAt * 1000).toLocaleString()}
           </p>
         </div>
         <span className={`status-badge status-${scan.status}`} style={{ fontSize: '0.9rem', padding: '0.4rem 1rem' }}>
@@ -201,5 +201,13 @@ export default function ScanPage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function ScanPage() {
+  return (
+    <Suspense fallback={<div className="loading">Loading scan data...</div>}>
+      <ScanContent />
+    </Suspense>
   )
 }
