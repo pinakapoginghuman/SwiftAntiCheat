@@ -36,10 +36,7 @@ public class ChatListener implements Listener {
             String message = event.getMessage().trim().toUpperCase();
 
             if (CODE_PATTERN.matcher(message).matches()) {
-                event.setCancelled(false);
                 event.setFormat(ChatColor.GRAY + "[Code] " + ChatColor.WHITE + "%2$s");
-                event.getRecipients().clear();
-                event.getRecipients().addAll(Bukkit.getOnlinePlayers());
 
                 var session = plugin.getScreenshareManager().getSession(player.getUniqueId());
                 String staffName = session != null ? Bukkit.getPlayer(session.getStaffUUID()) != null ? Bukkit.getPlayer(session.getStaffUUID()).getName() : null : null;
@@ -65,11 +62,8 @@ public class ChatListener implements Listener {
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                     checkReportCode(apiUrl, finalMessage, player, staffName);
                 });
-            } else {
-                event.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "Chat is disabled while frozen.");
-                player.sendMessage(ChatColor.GRAY + "Type your report code (e.g. " + ChatColor.AQUA + "SWIFT-XXXX-XXXX" + ChatColor.GRAY + ") to submit it.");
             }
+
             return;
         }
 
