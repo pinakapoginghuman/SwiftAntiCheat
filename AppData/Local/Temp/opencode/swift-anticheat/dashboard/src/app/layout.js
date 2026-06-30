@@ -7,7 +7,7 @@ export default function RootLayout({ children }) {
   const [apiUrl, setApiUrl] = useState('')
 
   useEffect(() => {
-    setApiUrl(localStorage.getItem('swiftac_api_url') || 'http://localhost:3000')
+    setApiUrl(localStorage.getItem('swiftac_api_url') || 'https://swiftac-api.onrender.com')
   }, [])
 
   return (

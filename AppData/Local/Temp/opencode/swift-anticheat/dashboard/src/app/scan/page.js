@@ -3,6 +3,9 @@
 import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 
+const API_BASE_URL = 'https://swiftac-api.onrender.com'
+const SCANNER_DOWNLOAD_URL = 'https://github.com/pinakapoginghuman/SwiftAntiCheat/releases/download/v1.0.0/swiftac-scanner.exe'
+
 function ScanContent() {
   const searchParams = useSearchParams()
   const scanId = searchParams.get('id')
@@ -17,12 +20,14 @@ function ScanContent() {
       return
     }
     fetchScan()
+    const interval = setInterval(fetchScan, 5000)
+    return () => clearInterval(interval)
   }, [scanId])
 
   async function fetchScan() {
     setLoading(true)
     setError('')
-    const apiUrl = localStorage.getItem('swiftac_api_url') || 'http://localhost:3000'
+    const apiUrl = localStorage.getItem('swiftac_api_url') || API_BASE_URL
 
     try {
       const res = await fetch(`${apiUrl}/api/scans/${scanId}`)
@@ -65,7 +70,28 @@ function ScanContent() {
         <div className="card" style={{ textAlign: 'center', padding: '3rem', borderColor: '#3a3a5a' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
           <h2 style={{ color: '#ffab00' }}>Scan In Progress</h2>
-          <p style={{ color: '#888' }}>Waiting for the player to run the scanner...</p>
+          <p style={{ color: '#888', marginBottom: '1.5rem' }}>Download and run the scanner to complete your scan.</p>
+          <div style={{ background: '#2a2a4a', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', textAlign: 'left', fontSize: '0.85rem' }}>
+            <p style={{ color: '#7c4dff', fontWeight: 600, marginBottom: '0.5rem' }}>Instructions:</p>
+            <ol style={{ color: '#b0b0c0', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
+              <li>Click the <strong>Download Scanner</strong> button below</li>
+              <li>Open the downloaded file (swiftac-scanner.exe)</li>
+              <li>It will scan your system automatically with Scan ID: <strong style={{ color: '#7c4dff' }}>{scanId}</strong></li>
+              <li>Wait for "Results uploaded successfully!" message</li>
+              <li>Staff will review the results</li>
+            </ol>
+          </div>
+          <a
+            href={SCANNER_DOWNLOAD_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: 'inline-block', padding: '1rem 3rem', background: '#7c4dff', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '1.1rem' }}
+          >
+            ⬇ Download Scanner
+          </a>
+          <p style={{ color: '#888', fontSize: '0.8rem', marginTop: '1rem' }}>
+            Scan ID: {scanId}
+          </p>
         </div>
       )}
 

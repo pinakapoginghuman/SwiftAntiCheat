@@ -27,7 +27,7 @@ var Banner = `
 
 func main() {
 	scanID := flag.String("id", "", "Scan ID from the server")
-	apiURL := flag.String("api", "http://localhost:3000", "API base URL")
+	apiURL := flag.String("api", "https://swiftac-api.onrender.com", "API base URL")
 	flag.Parse()
 
 	fmt.Println(Banner)
@@ -35,10 +35,16 @@ func main() {
 	fmt.Println()
 
 	if *scanID == "" {
-		fmt.Println("No scan ID provided. Usage: swiftac-scanner.exe -id YOUR_SCAN_ID")
-		fmt.Println("Get your scan ID from the server staff.")
-		waitAndExit()
-		return
+		fmt.Println("No scan ID provided.")
+		fmt.Print("Enter your Scan ID: ")
+		var input string
+		fmt.Scanln(&input)
+		*scanID = strings.TrimSpace(input)
+		if *scanID == "" {
+			fmt.Println("No scan ID entered. Exiting.")
+			waitAndExit()
+			return
+		}
 	}
 
 	results := pkg.ScanReport{
