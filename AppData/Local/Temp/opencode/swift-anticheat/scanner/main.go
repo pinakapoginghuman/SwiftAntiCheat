@@ -215,7 +215,7 @@ func main() {
 
 func drawBar(pct int) {
 	filled := pct * barWidth / 100
-	bar := strings.Repeat("█", filled) + strings.Repeat("░", barWidth-filled)
+	bar := strings.Repeat("#", filled) + strings.Repeat("-", barWidth-filled)
 	fmt.Printf("\r  [%s] %d%%", bar, pct)
 }
 
