@@ -1,7 +1,6 @@
 package net.swiftsmp.anticheat.commands;
 
 import net.swiftsmp.anticheat.SwiftACPlugin;
-import net.swiftsmp.anticheat.managers.APIManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -34,37 +33,23 @@ public class SwiftAntiCheatCommand implements CommandExecutor {
             return true;
         }
 
-        staff.sendMessage(ChatColor.GRAY + "Generating scan link for " + target.getName() + "...");
+        String scanUrl = plugin.getConfig().getString("scan.base-url", "https://swift-anti-cheat.vercel.app")
+            + "/scan";
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            APIManager.ScanResponse scanResponse = plugin.getAPIManager().createScan(
-                target.getName(),
-                target.getUniqueId().toString(),
-                staff.getName()
-            );
+        if (!plugin.getScreenshareManager().isFrozen(target.getUniqueId())) {
+            plugin.getScreenshareManager().freezePlayer(target, staff);
+        }
 
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                if (scanResponse == null) {
-                    staff.sendMessage(ChatColor.RED + "Failed to generate scan link. API is unreachable.");
-                    return;
-                }
+        for (String line : plugin.getConfig().getStringList("scan.link-message")) {
+            target.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                line.replace("{link}", scanUrl)
+                    .replace("{player}", target.getName())
+                    .replace("{staff}", staff.getName())));
+        }
 
-                String scanUrl = plugin.getConfig().getString("scan.base-url", "https://swiftac-scan.vercel.app")
-                    + "/scan?id=" + scanResponse.getId();
-
-                if (!plugin.getScreenshareManager().isFrozen(target.getUniqueId())) {
-                    plugin.getScreenshareManager().freezePlayer(target, staff);
-                }
-
-                for (String line : plugin.getConfig().getStringList("scan.link-message")) {
-                    target.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                        line.replace("{link}", scanUrl)));
-                }
-
-                staff.sendMessage(ChatColor.GREEN + "Scan link generated!");
-                staff.sendMessage(ChatColor.GRAY + "Link: " + ChatColor.AQUA + scanUrl);
-            });
-        });
+        staff.sendMessage(ChatColor.GREEN + "Scan link sent to " + target.getName() + "!");
+        staff.sendMessage(ChatColor.GRAY + "Player will get a report code after scanning.");
+        staff.sendMessage(ChatColor.GRAY + "Go to " + ChatColor.AQUA + scanUrl + ChatColor.GRAY + " to enter the code and view results.");
 
         return true;
     }

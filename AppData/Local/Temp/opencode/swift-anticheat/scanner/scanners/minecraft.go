@@ -18,6 +18,25 @@ var suspiciousModNames = []string{
 	"autoclicker", "killaura", "xray", "x-ray", "esp",
 	"wallhack", "reach", "triggerbot", "aimbot", "aimassist",
 	"antibot", "esp2d", "tracers", "nametags",
+	"entropy", "exhibition", "mio", "cuckold", "zero",
+	"prestige", "skilled", "astolfo", "drop", "azura",
+	"blizzard", "bubble", "celsius", "cobalt", "corrosion",
+	"diablo", "dort", "epic", "epsilon", "ethereal",
+	"excuse", "flux", "fusion", "gamesense", "gravity",
+	"gothaj", "huzuni", "insanity", "interia", "jigsaw",
+	"kagu", "ketamine", "konas", "koks", "lambda", "lemon",
+	"lithium", "lune", "lupus", "manky", "mercury",
+	"meteor", "monkey", "moonlight", "nepixel", "neverhook",
+	"nightly", "odyssey", "onyx", "orbit", "ozone", "panic",
+	"phantom", "phobos", "pulsive", "pyro",
+	"reckt", "reshack", "residual", "roofless", "rusherhack",
+	"ryozan", "salhack", "sanction", "seppuku", "shizuku",
+	"spicy", "spirit", "strife", "summer", "syneid",
+	"tifality", "toxic", "useless", "viper", "vulcan",
+	"winter", "xatz", "zabex", "fdp", "fdpclient",
+	"mio", "cuckold", "impact", "wurst", "aristois", "sigma",
+	"lambda", "bubble", "spicy", "strife", "nightly",
+	"sigma", "baritone",
 }
 
 var modFolderPaths = []string{
@@ -25,6 +44,15 @@ var modFolderPaths = []string{
 	os.Getenv("APPDATA") + "\\.minecraft\\versions",
 	os.Getenv("APPDATA") + "\\.minecraft\\libraries",
 	os.Getenv("APPDATA") + "\\.minecraft\\saves",
+	os.Getenv("APPDATA") + "\\.minecraft\\config",
+	os.Getenv("APPDATA") + "\\.minecraft\\resourcepacks",
+	os.Getenv("APPDATA") + "\\.minecraft\\shaderpacks",
+	os.Getenv("APPDATA") + "\\.minecraft\\plugins",
+	os.Getenv("APPDATA") + "\\.minecraft\\bin",
+	os.Getenv("APPDATA") + "\\.minecraft\\versions",
+	os.Getenv("APPDATA") + "\\.lunarclient\\offline\\multiver",
+	os.Getenv("APPDATA") + "\\.lunarclient\\offline\\1.8",
+	os.Getenv("LOCALAPPDATA") + "\\Packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\LocalState\\games\\com.mojang\\minecraftWorlds",
 }
 
 func ScanMinecraftMods() []pkg.MinecraftMod {

@@ -1,126 +1,103 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 export default function Dashboard() {
-  const [stats, setStats] = useState(null)
-  const [recentScans, setRecentScans] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [reportCode, setReportCode] = useState('')
+  const [lookupResult, setLookupResult] = useState(null)
+  const [lookupError, setLookupError] = useState('')
+  const [lookingUp, setLookingUp] = useState(false)
 
-  useEffect(() => {
-    fetchData()
-  }, [])
+  async function handleLookup(e) {
+    e.preventDefault()
+    if (!reportCode.trim()) return
+    setLookingUp(true)
+    setLookupError('')
+    setLookupResult(null)
 
-  const API_BASE_URL = 'https://swiftac-api.onrender.com'
-
-  async function fetchData(retries = 3) {
-    setLoading(true)
-    setError('')
-    const apiUrl = localStorage.getItem('swiftac_api_url') || API_BASE_URL
-
-    for (let attempt = 0; attempt < retries; attempt++) {
-      try {
-        const res = await fetch(`${apiUrl}/api/scans?limit=10`)
-        if (res.status === 503 && attempt < retries - 1) {
-          setError('API is waking up... (attempt ' + (attempt + 1) + ')')
-          await new Promise(r => setTimeout(r, 3000))
-          continue
-        }
-        if (!res.ok) throw new Error(`API returned ${res.status}`)
-        const scans = await res.json()
-        setRecentScans(scans)
-        setStats({
-          total: scans.length,
-          completed: scans.filter(s => s.status === 'completed').length,
-          pending: scans.filter(s => s.status === 'pending').length,
-          players: [...new Set(scans.map(s => s.playerName))].length,
-        })
-        setLoading(false)
+    try {
+      const apiUrl = localStorage.getItem('swiftac_api_url') || 'https://swiftac-api.onrender.com'
+      const res = await fetch(`${apiUrl}/api/reports/${reportCode.trim()}`)
+      if (res.status === 404) {
+        setLookupError('Report not found. Make sure the player typed the code correctly.')
+        setLookingUp(false)
         return
-      } catch (e) {
-        if (attempt < retries - 1) {
-          setError('API is waking up... (attempt ' + (attempt + 1) + ')')
-          await new Promise(r => setTimeout(r, 3000))
-        } else {
-          setError(e.message)
-        }
       }
+      if (!res.ok) throw new Error(`API returned ${res.status}`)
+      const data = await res.json()
+      window.location.href = `/scan?code=${reportCode.trim()}`
+    } catch (e) {
+      setLookupError(e.message)
     }
-    setLoading(false)
+    setLookingUp(false)
   }
-
-  if (loading) return <div className="loading">Loading dashboard...</div>
-  if (error && error !== 'API is waking up... (attempt 1)' && error !== 'API is waking up... (attempt 2)')
-    return <div className="error">Failed to connect to API: {error}</div>
-  if (error) return <div className="loading">{error}</div>
 
   return (
     <div>
-      <h1 style={{ marginBottom: '1rem' }}>Dashboard</h1>
+      <h1 style={{ marginBottom: '0.5rem' }}>SwiftAntiCheat</h1>
+      <p style={{ color: '#888', marginBottom: '2rem' }}>
+        Enter a report code to view scan results.
+      </p>
 
-      {stats && (
-        <div className="stats-grid">
-          <div className="stat-box">
-            <div className="value">{stats.total}</div>
-            <div className="label">Total Scans</div>
+      <div className="card" style={{ textAlign: 'center', padding: '3rem', maxWidth: '500px', margin: '0 auto 2rem' }}>
+        <h2 style={{ marginBottom: '1rem' }}>Look Up Report</h2>
+        <p style={{ color: '#888', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+          Ask the player for their report code and enter it below.
+        </p>
+        <form onSubmit={handleLookup} style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+          <input
+            type="text"
+            value={reportCode}
+            onChange={e => setReportCode(e.target.value.toUpperCase())}
+            placeholder="e.g. SWIFT-A1B2-C3D4"
+            style={{
+              padding: '0.8rem 1rem', borderRadius: '6px', border: '1px solid #3a3a5a',
+              background: '#1a1a2e', color: 'white', fontSize: '1rem',
+              fontFamily: 'monospace', width: '280px', letterSpacing: '1px'
+            }}
+          />
+          <button
+            type="submit"
+            disabled={lookingUp || !reportCode.trim()}
+            style={{
+              padding: '0.8rem 1.5rem', borderRadius: '6px', border: 'none',
+              background: lookingUp ? '#555' : '#7c4dff', color: 'white',
+              fontWeight: 600, cursor: lookingUp ? 'default' : 'pointer', fontSize: '1rem'
+            }}
+          >
+            {lookingUp ? '...' : 'Look Up'}
+          </button>
+        </form>
+        {lookupError && (
+          <p style={{ color: '#ff5252', fontSize: '0.85rem', marginTop: '1rem' }}>{lookupError}</p>
+        )}
+      </div>
+
+      <div className="card" style={{ padding: '2rem' }}>
+        <h2>How It Works</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginTop: '1rem' }}>
+          <div>
+            <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#7c4dff' }}>1️⃣</div>
+            <h3 style={{ fontSize: '1rem', marginBottom: '0.3rem' }}>Run Command</h3>
+            <p style={{ color: '#888', fontSize: '0.85rem' }}>
+              Use <code style={{ background: '#2a2a4a', padding: '0.1rem 0.3rem', borderRadius: '4px' }}>/swiftanticheat &lt;player&gt;</code> in-game
+            </p>
           </div>
-          <div className="stat-box">
-            <div className="value">{stats.completed}</div>
-            <div className="label">Completed</div>
+          <div>
+            <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#7c4dff' }}>2️⃣</div>
+            <h3 style={{ fontSize: '1rem', marginBottom: '0.3rem' }}>Player Scans</h3>
+            <p style={{ color: '#888', fontSize: '0.85rem' }}>
+              Player clicks the link, downloads the scanner, and runs it
+            </p>
           </div>
-          <div className="stat-box">
-            <div className="value">{stats.pending}</div>
-            <div className="label">Pending</div>
-          </div>
-          <div className="stat-box">
-            <div className="value">{stats.players}</div>
-            <div className="label">Players Scanned</div>
+          <div>
+            <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#7c4dff' }}>3️⃣</div>
+            <h3 style={{ fontSize: '1rem', marginBottom: '0.3rem' }}>Enter Code</h3>
+            <p style={{ color: '#888', fontSize: '0.85rem' }}>
+              Player gives you their report code — enter it above to see results
+            </p>
           </div>
         </div>
-      )}
-
-      <div className="card">
-        <h2>Recent Scans</h2>
-        {recentScans.length === 0 ? (
-          <p style={{ color: '#888', textAlign: 'center', padding: '1rem' }}>
-            No scans yet. Use /swiftanticheat &lt;player&gt; in-game to generate one.
-          </p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Player</th>
-                <th>Staff</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentScans.map(scan => (
-                <tr key={scan.id}>
-                  <td style={{ fontWeight: 600 }}>{scan.playerName}</td>
-                  <td>{scan.staffName}</td>
-                  <td>
-                    <span className={`status-badge status-${scan.status}`}>
-                      {scan.status}
-                    </span>
-                  </td>
-                  <td>{new Date(scan.createdAt * 1000).toLocaleString()}</td>
-                  <td>
-                    <a
-                      href={`/scan?id=${scan.id}`}
-                      style={{ color: '#7c4dff', textDecoration: 'none' }}
-                    >
-                      View
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
       </div>
     </div>
   )

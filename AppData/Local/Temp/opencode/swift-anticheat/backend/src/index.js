@@ -5,6 +5,7 @@ const Database = require('better-sqlite3');
 
 const scansRouter = require('./routes/scans');
 const playersRouter = require('./routes/players');
+const reportsRouter = require('./routes/reports');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,12 @@ db.exec(`
     created_at INTEGER DEFAULT (unixepoch()),
     completed_at INTEGER,
     results TEXT
+  );
+  CREATE TABLE IF NOT EXISTS reports (
+    report_code TEXT PRIMARY KEY,
+    results TEXT,
+    hwid_hash TEXT,
+    created_at INTEGER DEFAULT (unixepoch())
   );
   CREATE TABLE IF NOT EXISTS bans (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,6 +52,7 @@ app.use(express.json({ limit: '50mb' }));
 
 app.use('/api/scans', scansRouter(db));
 app.use('/api/players', playersRouter(db));
+app.use('/api/reports', reportsRouter(db));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() });

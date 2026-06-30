@@ -1,15 +1,18 @@
 package pkg
 
 type ScanReport struct {
-	ScanID           string            `json:"scan_id"`
-	ScanTime         string            `json:"scan_time"`
-	SystemInfo       SystemInfo        `json:"system_info"`
-	Processes        []ProcessInfo     `json:"processes"`
-	SuspiciousFiles  []FileInfo        `json:"suspicious_files"`
-	WindowsArtifacts WindowsArtifacts  `json:"windows_artifacts"`
-	MinecraftMods    []MinecraftMod    `json:"minecraft_mods"`
-	Flags            []Flag            `json:"flags"`
-	HWIDHash         string            `json:"hwid_hash"`
+	ScanID             string            `json:"scan_id,omitempty"`
+	ScanTime           string            `json:"scan_time"`
+	SystemInfo         SystemInfo        `json:"system_info"`
+	Processes          []ProcessInfo     `json:"processes"`
+	SuspiciousFiles    []FileInfo        `json:"suspicious_files"`
+	WindowsArtifacts   WindowsArtifacts  `json:"windows_artifacts"`
+	MinecraftMods      []MinecraftMod    `json:"minecraft_mods"`
+	StartupPrograms    []StartupEntry    `json:"startup_programs"`
+	InstalledPrograms  []string          `json:"installed_programs"`
+	SuspiciousServices []string          `json:"suspicious_services"`
+	Flags              []Flag            `json:"flags"`
+	HWIDHash           string            `json:"hwid_hash"`
 }
 
 type SystemInfo struct {
@@ -25,11 +28,11 @@ type SystemInfo struct {
 }
 
 type ProcessInfo struct {
-	PID         int    `json:"pid"`
-	Name        string `json:"name"`
-	Path        string `json:"path,omitempty"`
-	Suspicious  bool   `json:"suspicious"`
-	Reason      string `json:"reason,omitempty"`
+	PID        int    `json:"pid"`
+	Name       string `json:"name"`
+	Path       string `json:"path,omitempty"`
+	Suspicious bool   `json:"suspicious"`
+	Reason     string `json:"reason,omitempty"`
 }
 
 type FileInfo struct {
@@ -42,11 +45,13 @@ type FileInfo struct {
 }
 
 type WindowsArtifacts struct {
-	PrefetchFiles         []PrefetchEntry `json:"prefetch_files"`
-	SuspiciousRegistryKeys []string       `json:"suspicious_registry_keys"`
-	RecycleBinRecent      []string        `json:"recycle_bin_recent"`
-	PowershellHistory     string          `json:"powershell_history"`
-	EventLogCleared       bool            `json:"event_log_cleared"`
+	PrefetchFiles          []PrefetchEntry `json:"prefetch_files"`
+	SuspiciousRegistryKeys []string        `json:"suspicious_registry_keys"`
+	SuspiciousRunKeys      []string        `json:"suspicious_run_keys"`
+	RecentDocuments        []string        `json:"recent_documents"`
+	PowershellHistory      string          `json:"powershell_history"`
+	EventLogCleared        bool            `json:"event_log_cleared"`
+	DnsCache               []string        `json:"dns_cache"`
 }
 
 type PrefetchEntry struct {
@@ -63,6 +68,12 @@ type MinecraftMod struct {
 	Size        int64  `json:"size"`
 	Suspicious  bool   `json:"suspicious"`
 	Reason      string `json:"reason,omitempty"`
+}
+
+type StartupEntry struct {
+	Name       string `json:"name"`
+	Command    string `json:"command"`
+	Suspicious bool   `json:"suspicious"`
 }
 
 type Flag struct {

@@ -9,14 +9,16 @@ import (
 )
 
 type uploadPayload struct {
-	Results  ScanReport `json:"results"`
-	HWIDHash string     `json:"hwidHash"`
+	ReportCode string     `json:"reportCode"`
+	Results    ScanReport `json:"results"`
+	HWIDHash   string     `json:"hwidHash"`
 }
 
-func UploadResults(apiURL string, report ScanReport) error {
+func UploadResults(apiURL string, reportCode string, report ScanReport) error {
 	payload := uploadPayload{
-		Results:  report,
-		HWIDHash: report.HWIDHash,
+		ReportCode: reportCode,
+		Results:    report,
+		HWIDHash:   report.HWIDHash,
 	}
 
 	data, err := json.Marshal(payload)
@@ -24,7 +26,7 @@ func UploadResults(apiURL string, report ScanReport) error {
 		return fmt.Errorf("failed to marshal report: %w", err)
 	}
 
-	url := fmt.Sprintf("%s/api/scans/%s/results", apiURL, report.ScanID)
+	url := fmt.Sprintf("%s/api/reports/upload", apiURL)
 	client := &http.Client{Timeout: 30 * time.Second}
 
 	req, err := http.NewRequest("POST", url, bytes.NewReader(data))

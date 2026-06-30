@@ -10,23 +10,87 @@ import (
 )
 
 var suspiciousFileNames = []string{
+	// Minecraft ghost clients
 	"vape", "liquidbounce", "future", "rise", "novoline",
 	"whiteout", "cracked", "raven", "aero", "loose",
+	"entropy", "exhibition", "mio", "cuckold", "zero",
+	"fdpclient", "skilled", "astolfo", "drop", "azura",
+	"blizzard", "bubble", "celsius", "cobalt", "corrosion",
+	"diablo", "dort", "epic", "epsilon", "ethereal",
+	"excuse", "flux", "fusion", "gamesense", "gravity",
+	"gothaj", "huzuni", "insanity", "interia", "jigsaw",
+	"kagu", "ketamine", "konas", "koks", "lambda", "lemon",
+	"lithium", "lune", "lupus", "manky", "mercury",
+	"meteor", "monkey", "moonlight", "nepixel", "neverhook",
+	"nightly", "odyssey", "onyx", "orbit", "ozone", "panic",
+	"phantom", "phobos", "prestige", "pulsive", "pyro",
+	"reckt", "reshack", "residual", "roofless", "rusherhack",
+	"ryozan", "salhack", "sanction", "seppuku", "shizuku",
+	"spicy", "spirit", "strife", "summer", "syneid",
+	"tifality", "toxic", "useless", "viper", "vulcan",
+	"winter", "xatz", "zabex",
+
+	// Cheat-related terms
 	"injection", "injector", "cheatloader", "clientloader",
-	"anticheatbypass", "killaura", "autoclicker", "reach",
-	"xray", "x-ray", "esp", "wallhack", "nodus",
-	"wurst", "aristois", "sigma", "impact", "baritone",
+	"anticheatbypass", "acbypass", "bypass",
+	"killaura", "autoclicker", "reach", "triggerbot",
+	"xray", "x-ray", "esp", "wallhack", "aimbot", "aimassist",
+	"nodus", "wurst", "aristois", "sigma", "impact", "baritone",
+	"bhop", "speedhack", "flyhack", "scaffold", "tower",
+	"nuker", "antibot", "velocity", "antikb",
+
+	// General hacking tools
+	"cheatengine", "cheat engine", "cheatengine.exe",
+	"cheatengine-x86_64", "ceserver",
+	"artmoney", "artmoney.exe",
+	"wemod", "wemod.exe",
+	"processhacker", "process hacker",
+	"extremeinjector", "extreme injector",
+	"dexed", "dexed.exe",
+	"xenos", "xenos.exe",
+	"injector", "winject", "winject.exe",
 }
 
 var suspiciousExtensions = []string{
 	".exe", ".dll", ".jar", ".bat", ".ps1", ".vbs", ".scr",
+	".cmd", ".js", ".jse", ".wsf", ".wsh", ".msi", ".vxd",
+	".sys", ".com", ".pif", ".gadget", ".application",
 }
 
 var scanPaths = []string{
+	// User profile folders
 	os.Getenv("USERPROFILE") + "\\Desktop",
 	os.Getenv("USERPROFILE") + "\\Downloads",
+	os.Getenv("USERPROFILE") + "\\Documents",
+	os.Getenv("USERPROFILE") + "\\OneDrive\\Desktop",
+	os.Getenv("USERPROFILE") + "\\OneDrive\\Downloads",
+	os.Getenv("USERPROFILE") + "\\OneDrive\\Documents",
+
+	// Temp directories
 	os.Getenv("TEMP"),
 	os.Getenv("LOCALAPPDATA") + "\\Temp",
+	os.Getenv("SYSTEMROOT") + "\\Temp",
+	os.Getenv("WINDIR") + "\\Temp",
+
+	// AppData cheat hiding spots
+	os.Getenv("APPDATA"),
+	os.Getenv("LOCALAPPDATA"),
+	os.Getenv("USERPROFILE") + "\\AppData\\Roaming",
+	os.Getenv("USERPROFILE") + "\\AppData\\Local",
+
+	// Common game-related data directories
+	os.Getenv("APPDATA") + "\\.minecraft",
+	os.Getenv("APPDATA") + "\\..\\Roaming\\.minecraft",
+	os.Getenv("LOCALAPPDATA") + "\\Programs",
+	os.Getenv("LOCALAPPDATA") + "\\Microsoft\\Windows\\INetCache",
+
+	// Startup folder
+	os.Getenv("APPDATA") + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup",
+	os.Getenv("PROGRAMDATA") + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup",
+
+	// Program Files (for injected DLLs, etc.)
+	os.Getenv("PROGRAMFILES") + "\\Java",
+	os.Getenv("PROGRAMFILES(X86)") + "\\Java",
 }
 
 func ScanFilesystem() []pkg.FileInfo {
@@ -63,7 +127,7 @@ func ScanFilesystem() []pkg.FileInfo {
 				reason = "Known cheat identifier in filename"
 			} else if ext == ".jar" {
 				severity = "medium"
-				reason = "Executable jar in download area"
+				reason = "Executable jar in scan area"
 			} else if ext == ".exe" || ext == ".dll" {
 				severity = "medium"
 				reason = "Suspicious executable binary"
@@ -112,7 +176,10 @@ func pathContainsCheatFolder(path string) bool {
 	lower := strings.ToLower(path)
 	cheatDirs := []string{
 		"vape", "liquidbounce", "future", "rise", "novoline",
-		"whiteout", "ravenb+", "cheat", "hack", "client",
+		"whiteout", "ravenb+", "cheat", "hack",
+		"cheatengine", "wemod", "artmoney",
+		"injector", "ghostclient",
+		"ghost client", "prestige", "prestigeclient",
 	}
 	for _, d := range cheatDirs {
 		if strings.Contains(lower, d) {

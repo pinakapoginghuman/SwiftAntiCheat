@@ -23,8 +23,7 @@ screenshare:
   freeze-message:
     - "&c&lYou are being screenshared!"
     - "&7You have been frozen by &f{staff}&7."
-    - "&7Please join our Discord and create a ticket."
-    - "&7Use &f/discord &7for the invite link."
+    - "&7Please follow the instructions sent in chat."
     - "&c&lLeaving will result in a {duration} ban!"
   # Message shown to staff when screenshare starts
   staff-freeze-notify: "&a{player} has been frozen for screenshare."
@@ -38,10 +37,19 @@ screenshare:
 # Scan link settings
 scan:
   # The base URL for scan links (the dashboard URL)
-  base-url: "https://swiftac-scan.vercel.app"
+  base-url: "https://swift-anti-cheat.vercel.app"
   # Message shown when scan link is generated
   link-message:
-    - "&b&lSwiftAntiCheat &8» &fYour scan link has been generated!"
-    - "&7Click: &b{link}"
-    - "&7Download and run the scanner to complete the scan."
-    - "&7Your results will be reviewed by staff."
+    - ""
+    - "&b&lSwiftAntiCheat &8» &fA staff member has requested a scan!"
+    - "&7━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    - "&7&lStep 1: &fClick the link below to open the scan page"
+    - "&7&lStep 2: &fClick &bDownload Scanner&f and run the .exe file"
+    - "&7&lStep 3: &fWait for the scan to complete (~30 seconds)"
+    - "&7&lStep 4: &fCopy the &bReport Code&f shown on screen"
+    - "&7&lStep 5: &fSend the code to &f{staff}&f via Discord"
+    - "&7━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    - "&b🔗 {link}"
+    - "&7━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    - "&7Staff: &f{staff} &8| &7Player: &f{player}"
+    - ""
