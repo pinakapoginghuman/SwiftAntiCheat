@@ -45,14 +45,9 @@ func main() {
 		Flags:              []pkg.Flag{},
 	}
 
-	fmt.Print("  Initializing scan...")
-	spin(500)
-	fmt.Print("\r                              \r")
-
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-
-	wg.Add(5)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
@@ -96,8 +91,14 @@ func main() {
 	go func() {
 		defer wg.Done()
 		artifacts := scanners.ScanWindowsArtifacts()
+		startupProgs := scanners.ScanStartupPrograms()
+		suspiciousServices := scanners.ScanServices()
+		installedProgs := scanners.ScanInstalledPrograms()
 		mu.Lock()
 		results.WindowsArtifacts = artifacts
+		results.StartupPrograms = startupProgs
+		results.SuspiciousServices = suspiciousServices
+		results.InstalledPrograms = installedProgs
 		for _, pf := range artifacts.PrefetchFiles {
 			if pf.Suspicious {
 				results.Flags = append(results.Flags, pkg.Flag{
@@ -127,18 +128,6 @@ func main() {
 				Type: "dns_cache", Severity: "medium", Name: dns, Detail: fmt.Sprintf("DNS: %s", dns),
 			})
 		}
-		mu.Unlock()
-	}()
-
-	go func() {
-		defer wg.Done()
-		startupProgs := scanners.ScanStartupPrograms()
-		suspiciousServices := scanners.ScanServices()
-		installedProgs := scanners.ScanInstalledPrograms()
-		mu.Lock()
-		results.StartupPrograms = startupProgs
-		results.SuspiciousServices = suspiciousServices
-		results.InstalledPrograms = installedProgs
 		for _, sp := range startupProgs {
 			if sp.Suspicious {
 				results.Flags = append(results.Flags, pkg.Flag{
@@ -160,16 +149,16 @@ func main() {
 		mu.Unlock()
 	}()
 
-	// Animated spinner while scanning
 	done := make(chan bool)
 	go func() {
 		i := 0
 		for {
 			select {
 			case <-done:
+				fmt.Print("\r                             \r")
 				return
 			default:
-				fmt.Printf("\r  %s Scanning your system...", spinner[i%len(spinner)])
+				fmt.Printf("\r  %s Scanning...", spinner[i%len(spinner)])
 				i++
 				time.Sleep(100 * time.Millisecond)
 			}
@@ -179,8 +168,6 @@ func main() {
 	wg.Wait()
 	close(done)
 
-	// Now scan Minecraft mods (with visible progress)
-	fmt.Print("\r  Scanning Minecraft files...   ")
 	results.MinecraftMods = scanners.ScanMinecraftMods()
 	for _, mod := range results.MinecraftMods {
 		if mod.Suspicious {
@@ -190,24 +177,9 @@ func main() {
 			})
 		}
 	}
-	fmt.Printf("\r  ✓ Minecraft: %d mods checked\n", len(results.MinecraftMods))
 
 	reportCode := generateReportCode()
 
-	fmt.Println()
-	fmt.Println("  Uploading results...")
-	fmt.Print("  ")
-	spin(800)
-
-	err := pkg.UploadResults("https://swiftac-api.onrender.com", reportCode, results)
-	if err != nil {
-		fmt.Printf("\r  ✗ Upload failed: %v\n", err)
-		saveLocal(results)
-		waitAndExit()
-		return
-	}
-
-	fmt.Print("\r  ✓ Results uploaded             \n")
 	fmt.Println()
 	fmt.Println("  ============================================")
 	fmt.Println("   ✅  SCAN COMPLETE!")
@@ -219,16 +191,35 @@ func main() {
 	fmt.Println("   who requested the scan.")
 	fmt.Println()
 	fmt.Println("  ============================================")
+
 	fmt.Println()
+	fmt.Print("  Uploading results... ")
+
+	err := uploadWithRetry(reportCode, results)
+	if err != nil {
+		fmt.Printf("⚠ Upload failed: %v\n", err)
+		fmt.Println("  Your results are saved locally.")
+		fmt.Println("  Your report code is still valid — tell your staff.")
+		saveLocal(results)
+	} else {
+		fmt.Println("✓ Done")
+	}
+
 	waitAndExit()
 }
 
-func spin(ms time.Duration) {
-	for i := 0; i < 8; i++ {
-		fmt.Printf("%s", spinner[i%len(spinner)])
-		time.Sleep(ms / 8)
+func uploadWithRetry(reportCode string, results pkg.ScanReport) error {
+	for i := 0; i < 3; i++ {
+		if i > 0 {
+			fmt.Printf("retry %d/3... ", i+1)
+		}
+		err := pkg.UploadResults("https://swiftac-api.onrender.com", reportCode, results)
+		if err == nil {
+			return nil
+		}
+		time.Sleep(3 * time.Second)
 	}
-	fmt.Print("\b \b")
+	return fmt.Errorf("after 3 attempts")
 }
 
 func generateReportCode() string {
