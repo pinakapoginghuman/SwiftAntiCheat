@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-const SCANNER_DOWNLOAD_URL = 'https://github.com/pinakapoginghuman/SwiftAntiCheat/releases/latest/download/swiftac-scanner.exe'
+const SCANNER_DOWNLOAD_URL = 'https://github.com/pinakapoginghuman/SwiftAntiCheat/releases/download/v1.2.0/swiftac-scanner.exe'
 
 function ScanContent() {
   const searchParams = useSearchParams()
