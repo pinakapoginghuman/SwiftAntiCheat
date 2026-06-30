@@ -23,11 +23,11 @@ var Banner = `
        ██  ██  ██   ██  ██  ██          ██
   ███████   █████ ███   ██  ██          ██
   =============================================
-  SwiftAntiCheat Scanner v1.1.0
+  SwiftAntiCheat Scanner v1.2.0
   =============================================
 `
 
-var spinner = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
+const barWidth = 25
 
 func main() {
 	fmt.Println(Banner)
@@ -49,6 +49,8 @@ func main() {
 	var mu sync.Mutex
 	wg.Add(4)
 
+	progress := make(chan int, 100)
+
 	go func() {
 		defer wg.Done()
 		info := scanners.GetSystemInfo()
@@ -56,6 +58,7 @@ func main() {
 		results.SystemInfo = info
 		results.HWIDHash = generateHWID(info)
 		mu.Unlock()
+		progress <- 20
 	}()
 
 	go func() {
@@ -72,6 +75,7 @@ func main() {
 			}
 		}
 		mu.Unlock()
+		progress <- 25
 	}()
 
 	go func() {
@@ -86,6 +90,7 @@ func main() {
 			})
 		}
 		mu.Unlock()
+		progress <- 25
 	}()
 
 	go func() {
@@ -147,26 +152,24 @@ func main() {
 			})
 		}
 		mu.Unlock()
+		progress <- 20
 	}()
 
-	done := make(chan bool)
 	go func() {
-		i := 0
-		for {
-			select {
-			case <-done:
-				fmt.Print("\r                             \r")
-				return
-			default:
-				fmt.Printf("\r  %s Scanning...", spinner[i%len(spinner)])
-				i++
-				time.Sleep(100 * time.Millisecond)
+		pct := 0
+		for p := range progress {
+			pct += p
+			if pct > 95 {
+				pct = 95
 			}
+			drawBar(pct)
 		}
 	}()
 
 	wg.Wait()
-	close(done)
+	close(progress)
+
+	drawBar(95)
 
 	results.MinecraftMods = scanners.ScanMinecraftMods()
 	for _, mod := range results.MinecraftMods {
@@ -179,6 +182,8 @@ func main() {
 	}
 
 	reportCode := generateReportCode()
+
+	drawBar(100)
 
 	fmt.Println()
 	fmt.Println("  ============================================")
@@ -206,6 +211,12 @@ func main() {
 	}
 
 	waitAndExit()
+}
+
+func drawBar(pct int) {
+	filled := pct * barWidth / 100
+	bar := strings.Repeat("█", filled) + strings.Repeat("░", barWidth-filled)
+	fmt.Printf("\r  [%s] %d%%", bar, pct)
 }
 
 func uploadWithRetry(reportCode string, results pkg.ScanReport) error {
