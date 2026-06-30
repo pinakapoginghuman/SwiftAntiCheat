@@ -79,27 +79,21 @@ function ScanContent() {
               </span>
             </li>
             <li>
-              <strong style={{ color: '#e0e0e0' }}>Wait for the scan to complete</strong>
+              <strong style={{ color: '#e0e0e0' }}>Wait a few seconds</strong>
               <span style={{ display: 'block', fontSize: '0.8rem', color: '#888' }}>
-                It will scan your processes, files, Windows, and Minecraft (~30-60 seconds)
+                A spinner animates while it scans — <strong>do not close the window</strong>
               </span>
             </li>
             <li>
               <strong style={{ color: '#e0e0e0' }}>Copy your Report Code</strong>
               <span style={{ display: 'block', fontSize: '0.8rem', color: '#888' }}>
-                The scanner will show a code like <strong style={{ color: '#7c4dff' }}>SWIFT-XXXX-XXXX</strong>
+                The scanner will show <strong style={{ color: '#7c4dff' }}>SWIFT-XXXX-XXXX</strong>
               </span>
             </li>
             <li>
-              <strong style={{ color: '#e0e0e0' }}>Send the code to the staff member</strong>
+              <strong style={{ color: '#e0e0e0' }}>Send it to staff on Discord</strong>
               <span style={{ display: 'block', fontSize: '0.8rem', color: '#888' }}>
-                Paste it in Discord or wherever they asked you to
-              </span>
-            </li>
-            <li>
-              <strong style={{ color: '#e0e0e0' }}>Done!</strong>
-              <span style={{ display: 'block', fontSize: '0.8rem', color: '#888' }}>
-                Staff will enter your code on their dashboard to review the results
+                They&apos;ll enter it on the dashboard to see results
               </span>
             </li>
           </ol>
