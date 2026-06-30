@@ -12,36 +12,48 @@ export default function Dashboard() {
     fetchData()
   }, [])
 
-  async function fetchData() {
+  const API_BASE_URL = 'https://swiftac-api.onrender.com'
+
+  async function fetchData(retries = 3) {
     setLoading(true)
     setError('')
-    const apiUrl = localStorage.getItem('swiftac_api_url') || 'http://localhost:3000'
+    const apiUrl = localStorage.getItem('swiftac_api_url') || API_BASE_URL
 
-    try {
-      const [scansRes] = await Promise.all([
-        fetch(`${apiUrl}/api/scans?limit=10`),
-      ])
-
-      if (!scansRes.ok) throw new Error(`API returned ${scansRes.status}`)
-
-      const scans = await scansRes.json()
-      setRecentScans(scans)
-
-      setStats({
-        total: scans.length,
-        completed: scans.filter(s => s.status === 'completed').length,
-        pending: scans.filter(s => s.status === 'pending').length,
-        players: [...new Set(scans.map(s => s.playerName))].length,
-      })
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        const res = await fetch(`${apiUrl}/api/scans?limit=10`)
+        if (res.status === 503 && attempt < retries - 1) {
+          setError('API is waking up... (attempt ' + (attempt + 1) + ')')
+          await new Promise(r => setTimeout(r, 3000))
+          continue
+        }
+        if (!res.ok) throw new Error(`API returned ${res.status}`)
+        const scans = await res.json()
+        setRecentScans(scans)
+        setStats({
+          total: scans.length,
+          completed: scans.filter(s => s.status === 'completed').length,
+          pending: scans.filter(s => s.status === 'pending').length,
+          players: [...new Set(scans.map(s => s.playerName))].length,
+        })
+        setLoading(false)
+        return
+      } catch (e) {
+        if (attempt < retries - 1) {
+          setError('API is waking up... (attempt ' + (attempt + 1) + ')')
+          await new Promise(r => setTimeout(r, 3000))
+        } else {
+          setError(e.message)
+        }
+      }
     }
+    setLoading(false)
   }
 
   if (loading) return <div className="loading">Loading dashboard...</div>
-  if (error) return <div className="error">Failed to connect to API: {error}</div>
+  if (error && error !== 'API is waking up... (attempt 1)' && error !== 'API is waking up... (attempt 2)')
+    return <div className="error">Failed to connect to API: {error}</div>
+  if (error) return <div className="loading">{error}</div>
 
   return (
     <div>

@@ -24,22 +24,35 @@ function ScanContent() {
     return () => clearInterval(interval)
   }, [scanId])
 
-  async function fetchScan() {
+  async function fetchScan(retries = 3) {
     setLoading(true)
     setError('')
     const apiUrl = localStorage.getItem('swiftac_api_url') || API_BASE_URL
 
-    try {
-      const res = await fetch(`${apiUrl}/api/scans/${scanId}`)
-      if (res.status === 404) throw new Error('Scan not found')
-      if (!res.ok) throw new Error(`API returned ${res.status}`)
-      const data = await res.json()
-      setScan(data)
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        const res = await fetch(`${apiUrl}/api/scans/${scanId}`)
+        if (res.status === 404) throw new Error('Scan not found')
+        if (res.status === 503 && attempt < retries - 1) {
+          setError('API is waking up... (attempt ' + (attempt + 1) + ')')
+          await new Promise(r => setTimeout(r, 3000))
+          continue
+        }
+        if (!res.ok) throw new Error(`API returned ${res.status}`)
+        const data = await res.json()
+        setScan(data)
+        setLoading(false)
+        return
+      } catch (e) {
+        if (attempt < retries - 1) {
+          setError('API is waking up... (attempt ' + (attempt + 1) + ')')
+          await new Promise(r => setTimeout(r, 3000))
+        } else {
+          setError(e.message)
+        }
+      }
     }
+    setLoading(false)
   }
 
   if (loading) return <div className="loading">Loading scan data...</div>
